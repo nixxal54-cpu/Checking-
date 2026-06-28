@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudinary Direct Upload Tester</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            margin: 0;
+            padding: 24px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 1.75rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #111827;
+        }
+        p {
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #4b5563;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #111827;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-bottom: 16px;
+        }
+        .config-table th {
+            text-align: left;
+            padding: 6px 12px 6px 0;
+            color: #4b5563;
+            font-weight: 500;
+        }
+        .config-table td {
+            font-family: monospace;
+            color: #111827;
+            background-color: #f9fafb;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+        .input-file {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 0.875rem;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 8px;
+            background-color: #f9fafb;
+            margin-bottom: 16px;
+        }
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .btn {
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            transition: background-color 0.15s ease;
+        }
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+        .btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .progress-container {
+            display: none;
+            margin-top: 16px;
+        }
+        .progress-bar-wrapper {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+            margin-bottom: 4px;
+        }
+        .progress-bar {
+            background-color: #10b981;
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .status-display {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+        }
+        .status-display.idle {
+            display: block;
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border: 1px dashed #d1d5db;
+        }
+        .status-display.success {
+            display: block;
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .status-display.error {
+            display: block;
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .console-logs {
+            background-color: #1f2937;
+            color: #34d399;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.8125rem;
+            padding: 16px;
+            border-radius: 6px;
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .raw-response {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 16px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.8125rem;
+            max-height: 250px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .preview-media {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            display: block;
+            margin: 12px auto 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Cloudinary Direct Upload Tester</h1>
+        <p>A standalone utility to isolate Cloudinary connectivity from application framework configurations.</p>
+    </header>
+
+    <!-- Hardcoded Configurations -->
+    <div class="card">
+        <div class="card-title">Cloudinary Credentials</div>
+        <table class="config-table">
+            <tr>
+                <th style="width: 30%;">Cloud Name</th>
+                <td>dmwnywqes</td>
+            </tr>
+            <tr>
+                <th>Upload Preset</th>
+                <td>blinks</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Interface and Control Form -->
+    <div class="card">
+        <div class="card-title">Upload Form</div>
+        
+        <div class="form-group">
+            <label for="fileInput">Choose Image or Video</label>
+            <input type="file" id="fileInput" class="input-file" accept="image/*,video/*" />
+        </div>
+
+        <div class="form-group">
+            <label>API Request Method</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="uploadMethod" value="xhr" checked>
+                    XMLHttpRequest (Tracks live progress)
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="uploadMethod" value="fetch">
+                    Fetch API (Cannot track live progress)
+                </label>
+            </div>
+        </div>
+
+        <button id="uploadBtn" class="btn" disabled>Upload File</button>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-info">
+                <span id="progressMethodText">Using XMLHttpRequest</span>
+                <span id="progressPercent">0%</span>
+            </div>
+        </div>
+
+        <div class="status-display idle" id="statusDisplay">Status: Ready. Choose a file to start.</div>
+    </div>
+
+    <!-- Log Panel -->
+    <div class="card">
+        <div class="card-title">Console Logs</div>
+        <div class="console-logs" id="logPanel">Ready for operations...</div>
+    </div>
+
+    <!-- Media Preview Section -->
+    <div class="card" id="previewCard" style="display: none;">
+        <div class="card-title">Uploaded Media Preview</div>
+        <div id="previewMediaContainer"></div>
+    </div>
+
+    <!-- Raw JSON Response -->
+    <div class="card">
+        <div class="card-title">Raw JSON Response</div>
+        <pre class="raw-response" id="rawResponsePanel">No upload requests have been initiated yet.</pre>
+    </div>
+</div>
+
+<script>
+    const CLOUD_NAME = 'dmwnywqes';
+    const UPLOAD_PRESET = 'blinks';
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressMethodText = document.getElementById('progressMethodText');
+    const progressPercent = document.getElementById('progressPercent');
+    const statusDisplay = document.getElementById('statusDisplay');
+    const logPanel = document.getElementById('logPanel');
+    const previewCard = document.getElementById('previewCard');
+    const previewMediaContainer = document.getElementById('previewMediaContainer');
+    const rawResponsePanel = document.getElementById('rawResponsePanel');
+
+    // custom logger to pipe events to on-screen console
+    function appendLog(message, type = 'info') {
+        const timestamp = new Date().toISOString().split('T')[1].slice(0, -1);
+        const prefix = `[${timestamp}]`;
+        const logMsg = `${prefix} ${message}`;
+        
+        // Log directly to standard developer tools console
+        if (type === 'error') {
+            console.error(logMsg);
+        } else {
+            console.log(logMsg);
+        }
+
+        // Output to on-screen console box
+        const color = type === 'error' ? '#f87171' : (type === 'success' ? '#34d399' : '#9ca3af');
+        const formattedLine = `<span style="color: ${color};">${logMsg}</span>\n`;
+        logPanel.innerHTML += formattedLine;
+        logPanel.scrollTop = logPanel.scrollHeight;
+    }
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            appendLog(`File selected: "${file.name}" | Size: ${(file.size / 1024 / 1024).toFixed(2)} MB | MIME Type: ${file.type}`);
+            uploadBtn.disabled = false;
+        } else {
+            uploadBtn.disabled = true;
+        }
+    });
+
+    uploadBtn.addEventListener('click', () => {
+        const file = fileInput.files[0];
+        if (!file) {
+            appendLog('Error: No file selected.', 'error');
+            return;
+        }
+
+        const selectedMethod = document.querySelector('input[name="uploadMethod"]:checked').value;
+        
+        // Clear old states
+        uploadBtn.disabled = true;
+        progressContainer.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressPercent.textContent = '0%';
+        previewCard.style.display = 'none';
+        previewMediaContainer.innerHTML = '';
+        rawResponsePanel.textContent = 'Awaiting response...';
+        
+        statusDisplay.className = 'status-display idle';
+        statusDisplay.textContent = 'Uploading...';
+
+        // Auto-detect endpoint based on resource type
+        let endpoint = '';
+        let fileTypeCategory = '';
+
+        if (file.type.startsWith('image/')) {
+            endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+            fileTypeCategory = 'image';
+        } else if (file.type.startsWith('video/')) {
+            endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`;
+            fileTypeCategory = 'video';
+        } else {
+            // Fallback default
+            appendLog(`MIME type unrecognized ("${file.type}"). Defaulting to image endpoint.`, 'error');
+            endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+            fileTypeCategory = 'image';
+        }
+
+        appendLog(`Upload initiated. Method: ${selectedMethod.toUpperCase()} | Category: ${fileTypeCategory} | Endpoint: ${endpoint}`);
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+
+        if (selectedMethod === 'xhr') {
+            progressMethodText.textContent = 'Using XMLHttpRequest (Live Progress)';
+            runXhrUpload(endpoint, formData, fileTypeCategory);
+        } else {
+            progressMethodText.textContent = 'Using Fetch API';
+            runFetchUpload(endpoint, formData, fileTypeCategory);
+        }
+    });
+
+    // Option A: Upload utilizing XMLHttpRequest to display accurate upload completion tracking
+    function runXhrUpload(endpoint, formData, fileTypeCategory) {
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressPercent.textContent = `${percent}%`;
+                appendLog(`Upload progress: ${percent}%`);
+            }
+        });
+
+        xhr.addEventListener('load', () => {
+            appendLog(`Response status code received: ${xhr.status}`);
+            appendLog(`Response raw payload: ${xhr.responseText}`);
+
+            let data;
+            try {
+                data = JSON.parse(xhr.responseText);
+                rawResponsePanel.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                appendLog(`Unable to parse response JSON: ${err.message}`, 'error');
+                rawResponsePanel.textContent = xhr.responseText || '(Empty Response body)';
+            }
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                handleSuccess(data, fileTypeCategory);
+            } else {
+                const errMsg = data?.error?.message || xhr.statusText || 'An error occurred during transaction';
+                handleFailure(xhr.status, errMsg);
+            }
+        });
+
+        xhr.addEventListener('error', (e) => {
+            handleFailure('Network Error / Intercepted', 'TypeError: Failed to fetch / Send failure. Connection likely blocked by CORS policy, CSP restrictions, browser plugin, or service worker.');
+        });
+
+        xhr.open('POST', endpoint);
+        xhr.send(formData);
+    }
+
+    // Option B: Upload utilizing standard Fetch API (cannot capture upload progress triggers)
+    function runFetchUpload(endpoint, formData, fileTypeCategory) {
+        // Emulate initial loading state
+        progressBar.style.width = '25%';
+        progressPercent.textContent = 'Connecting...';
+        appendLog('Establishing fetch connection. Fetch API does not report chunked upload progress states.');
+
+        fetch(endpoint, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            appendLog(`Response status code received: ${response.status}`);
+            progressBar.style.width = '75%';
+            progressPercent.textContent = 'Parsing response...';
+            return response.json().then(data => ({
+                status: response.status,
+                data: data
+            }));
+        })
+        .then(({ status, data }) => {
+            progressBar.style.width = '100%';
+            progressPercent.textContent = '100%';
+            rawResponsePanel.textContent = JSON.stringify(data, null, 2);
+            appendLog(`Response raw payload: ${JSON.stringify(data)}`);
+
+            if (status >= 200 && status < 300) {
+                handleSuccess(data, fileTypeCategory);
+            } else {
+                const errMsg = data?.error?.message || 'Upload operation rejected';
+                handleFailure(status, errMsg);
+            }
+        })
+        .catch(err => {
+            progressBar.style.width = '0%';
+            progressPercent.textContent = 'Failed';
+            rawResponsePanel.textContent = `${err.name}: ${err.message}\n\nCommon Causes of "Failed to Fetch":\n1. Active Service Worker intercepting fetch calls.\n2. strict "connect-src" directives in Content Security Policies (CSP).\n3. Browser ad-blocker blocking third-party API hosts.\n4. Local firewall blocking access to the Cloudinary API domain.`;
+            handleFailure('TypeError: Failed to fetch', err.message);
+        });
+    }
+
+    function handleSuccess(data, fileTypeCategory) {
+        statusDisplay.className = 'status-display success';
+        statusDisplay.textContent = 'PASS: File successfully uploaded!';
+        appendLog(`PASS: Request resolved successfully. secure_url: ${data.secure_url}`, 'success');
+
+        previewCard.style.display = 'block';
+        previewMediaContainer.innerHTML = '';
+
+        if (fileTypeCategory === 'image') {
+            const img = document.createElement('img');
+            img.src = data.secure_url;
+            img.className = 'preview-media';
+            img.alt = 'Cloudinary Upload Result';
+            previewMediaContainer.appendChild(img);
+        } else if (fileTypeCategory === 'video') {
+            const video = document.createElement('video');
+            video.src = data.secure_url;
+            video.className = 'preview-media';
+            video.controls = true;
+            video.autoplay = true;
+            video.muted = true;
+            previewMediaContainer.appendChild(video);
+        }
+        uploadBtn.disabled = false;
+    }
+
+    function handleFailure(statusCode, errorMessage) {
+        statusDisplay.className = 'status-display error';
+        statusDisplay.textContent = `FAIL: (Status ${statusCode}) ${errorMessage}`;
+        appendLog(`FAIL: (Status ${statusCode}) - Details: ${errorMessage}`, 'error');
+        uploadBtn.disabled = false;
+    }
+</script>
+</body>
+</html>
